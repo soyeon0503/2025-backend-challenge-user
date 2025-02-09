@@ -6,8 +6,8 @@ services:
     container_name: laravel_app
     working_dir: /var/www/html
     ports:
-      - "5173:5173" # Vite 개발 서버
-      - "9000:9000" # PHP-FPM 서버
+      - "5173:5173" # Vite 개발 서버 (Frontend)
+      - "9000:9000" # PHP-FPM 서버 (Backend)
     volumes:
       - ./src:/var/www/html
       - ./docker/app/php.ini:/usr/local/etc/php/php.ini # PHP 설정
@@ -17,11 +17,11 @@ services:
       - APP_DEBUG=false
       - APP_KEY=${APP_KEY}
     env_file:
-      - .env
+      - .env  # RDS 정보를 .env에서 가져옴
     networks:
       - laravel_network
     depends_on:
-      - web
+      - web  # Nginx 실행 후 Laravel 실행
 
   web:
     image: nginx:latest
@@ -34,7 +34,7 @@ services:
     networks:
       - laravel_network
     depends_on:
-      - app
+      - app  # Laravel이 실행된 후 Nginx 실행
 
 networks:
   laravel_network:
