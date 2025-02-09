@@ -15,9 +15,6 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # 소스 코드 복사
 COPY . .
 
-# node_modules는 공유하지 않도록 설정
-RUN chmod -R 775 storage bootstrap/cache
-
 # 의존성 설치
 RUN composer install --no-dev --optimize-autoloader
 
