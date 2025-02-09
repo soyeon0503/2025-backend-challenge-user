@@ -13,9 +13,8 @@ services:
       - ./docker/app/php.ini:/usr/local/etc/php/php.ini # PHP 설정
       - /var/www/html/node_modules # node_modules는 공유하지 않음
     environment:
-      - APP_ENV=production
-      - APP_DEBUG=false
-      - APP_KEY=${APP_KEY}
+      - VITE_HOST=0.0.0.0
+      - VITE_PORT=5173
     env_file:
       - .env  # .env 파일에서 RDS 연결 정보 로드
     networks:
