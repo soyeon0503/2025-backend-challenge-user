@@ -1,21 +1,22 @@
 FROM php:8.2-fpm
 
-WORKDIR /var/www/html
-
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
-    git curl zip unzip \
-    libpng-dev libjpeg-dev libfreetype6-dev \
-    libonig-dev libzip-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_mysql mbstring zip exif pcntl gd
+    git \
+    unzip \
+    curl \
+    libzip-dev \
+    zip \
+    libonig-dev \
+    libxml2-dev \
+    && docker-php-ext-install pdo_mysql mbstring zip
 
-# Composer 설치
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Install Node.js (LTS version)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
-# 소스 코드 복사
-COPY . .
+# Install Composer
+COPY --from=composer:2.6 /usr/bin/composer /usr/bin/composer
 
-# 의존성 설치
-RUN composer install --no-dev --optimize-autoloader
-
-CMD ["php-fpm"]
+# Set working directory
+WORKDIR /var/www/html
