@@ -6,17 +6,14 @@ services:
     container_name: laravel_app
     working_dir: /var/www/html
     ports:
-      - "5173:5173" # Vite 개발 서버
-      - "9000:9000" # PHP-FPM 서버
+      - "5173:5173"
+      - "9000:9000" 
     volumes:
       - ./src:/var/www/html
-      - ./docker/app/php.ini:/usr/local/etc/php/php.ini # PHP 설정
-      - /var/www/html/node_modules # node_modules는 공유하지 않음
+      - ./docker/app/php.ini:/usr/local/etc/php/php.ini
     environment:
       - VITE_HOST=0.0.0.0
       - VITE_PORT=5173
-    env_file:
-      - .env  # .env 파일에서 RDS 연결 정보 로드
     networks:
       - laravel_network
 
