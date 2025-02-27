@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AuthController;
 use Illuminate\Support\Facades\Auth;
 
 // 인증 관련 라우트
@@ -17,3 +18,11 @@ Route::get('/', function () {
 Route::middleware(['auth'])->group(function () {
     Route::resource('users', UserController::class);
 });
+
+// Google
+Route::get('/auth/google', [AuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [AuthController::class, 'handleGoogleCallback']);
+
+// Kakao
+Route::get('/auth/kakao', [AuthController::class, 'redirectToKakao']);
+Route::get('/auth/kakao/callback', [AuthController::class, 'handleKakaoCallback']);

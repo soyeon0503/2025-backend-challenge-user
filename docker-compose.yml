@@ -1,34 +1,58 @@
+# version: '3.8'
+
 services:
   app:
     build:
       context: ./docker/app
       dockerfile: Dockerfile
-    container_name: laravel_app
+    container_name: app
     working_dir: /var/www/html
     ports:
-      - "5173:5173"
-      - "9000:9000" 
+      - "5173:5173" # Vite 개발 서버
+      - "9000:9000" # PHP-FPM 서버
     volumes:
-      - ./src:/var/www/html
-      - ./docker/app/php.ini:/usr/local/etc/php/php.ini
+      - ./src:/var/www/html # Laravel 프로젝트 소스 코드
+      - ./docker/app/php.ini:/usr/local/etc/php/php.ini # PHP 설정
     environment:
       - VITE_HOST=0.0.0.0
       - VITE_PORT=5173
     networks:
       - laravel_network
+    depends_on:
+      - mysql
 
   web:
     image: nginx:latest
-    container_name: laravel_nginx
+    container_name: web
     volumes:
       - ./src:/var/www/html
       - ./docker/nginx/nginx.conf:/etc/nginx/conf.d/default.conf
     ports:
-      - "80:80"
+      - "8080:8080"
     networks:
       - laravel_network
     depends_on:
-      - app  # PHP-FPM이 먼저 실행된 후 Nginx 실행
+      - app
+
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: pass
+      MYSQL_DATABASE: local_db
+      MYSQL_USER: dbuser
+      MYSQL_PASSWORD: dbuserpw
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf # MySQL 설정
+    networks:
+      - laravel_network
 
 networks:
   laravel_network:
+
+volumes:
+  mysql_data:
