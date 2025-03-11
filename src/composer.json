@@ -8,9 +8,9 @@
     "require": {
         "php": "^8.2",
         "laravel/framework": "^11.31",
-        "laravel/socialite": "^5.0",
         "laravel/tinker": "^2.9",
         "laravel/ui": "^4.6",
+        "socialiteproviders/google": "^4.1",
         "socialiteproviders/kakao": "^4.3"
     },
     "require-dev": {
