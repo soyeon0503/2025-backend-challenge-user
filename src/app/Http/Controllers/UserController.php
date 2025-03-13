@@ -24,8 +24,13 @@ class UserController extends Controller
         return view('users.show', compact('user'));
     }
 
+    // 5. 게시물 수정 페이지(일반유저만 가능)
     public function edit(string $id){
         $user = User::find($id);
+
+        if ($user->provider != null) {
+            return redirect()->route('users.index')->with('error', '소셜 로그인 사용자는 정보를 수정할 수 없습니다.');
+        }
         return view('users.edit', compact('user'));
     }
     
