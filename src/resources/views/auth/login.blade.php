@@ -33,11 +33,9 @@
                 로그인
             </button>
 
-            @if (Route::has('password.request'))
-                <a class="underline text-center" href="{{ route('password.request') }}">
-                    비밀번호 찾기
-                </a>
-            @endif
+            <a class="underline text-center" href="{{ route('password.request') }}">
+                 비밀번호 찾기
+            </a>
             <a class="underline text-center" href="{{ route('register') }}">
                 회원가입
             </a>
