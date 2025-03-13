@@ -8,6 +8,12 @@
             <button class="bg-red-500 text-white rounded-3xl px-3 py-2" type="submit">로그아웃</button>
         </form>
     </div>
+
+    @if (session('error'))
+        <div class="bg-red-500 text-white px-4 py-3 rounded-lg mt-6 text-center">
+            {{ session('error') }}
+        </div>
+    @endif
    
     <ul class="flex flex-col gap-4 mt-8">
         @foreach ($users as $user)
