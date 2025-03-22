@@ -1,66 +1,149 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 2025-백엔드 챌린지
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## 목적
 
-## About Laravel
+## 기술스택
+- php8.0
+- laravel 11
+- mysql8.0
+- docker27.4
+- npm 20.0.0
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 목차
+### 1. 로그인 / 로그아웃 기능 (2025.01.26 ~ 2025.02.09)
+라라벨의 Auth기능을 이용하여 구현
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### 2. 소셜 로그인 기능 (카카오/구글연계) (2025.02.10 ~ 2025.02.27)
+1. socialite 프로바이저 설치
+    ```composer  i socialiteproviders/google```
+    ```composer  i　socialiteproviders/kakao```
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+2. .env파일에 각 플랫폼에서 제공하는 CLIENT_ID / CLIENT_SECRET과 리다이렉트URL을 넣어준다
+    ```
+    GOOGLE_CLIENT_ID=
+    GOOGLE_CLIENT_SECRET=
+    GOOGLE_REDIRECT_URL=
 
-## Learning Laravel
+    KAKAO_CLIENT_ID=
+    KAKAO_CLIENT_SECRET=
+    KAKAO_REDIRECT_URL=
+    ```
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+3. app/Providers/AppServiceProvider.php 작성
+    ```
+    public function boot(): void
+        {
+            Event::listen(function (\SocialiteProviders\Manager\SocialiteWasCalled $event) {
+                $event->extendSocialite('google', \SocialiteProviders\Google\Provider::class);
+                $event->extendSocialite('kakao', \SocialiteProviders\Kakao\KakaoProvider::class);
+            });
+        }
+    ```
+공식문서에 
+    ```
+        $event->extendSocialite('kakao', \SocialiteProviders\Kakao\Provider::class);
+    ```
+로 적혀있어서 정말 고생했다^^... **KakaoProvider**로 작성하자....
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+4. bootstrap/providers.php에 프로바이저 등록
+    ```
+        return [
+            App\Providers\AppServiceProvider::class,
+            \SocialiteProviders\Manager\ServiceProvider::class
+        ];
+    ```
+5. users 데이터베이스에 provier / provider_id 칼럼 추가
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+6. Controller에 Socialite 드라이버 클래스 사용하여 로그인 및 사용자 정보 가져오기
+    ```
+        // ----------------------
+        // Google 로그인
+        // ----------------------
+        public function redirectToGoogle()
+        {
+            return Socialite::driver('google')->redirect();
+        }
 
-## Laravel Sponsors
+        public function handleGoogleCallback()
+        {
+            try {
+                $socialUser = Socialite::driver('google')->stateless()->user();
+                return $this->handleSocialLogin($socialUser, 'google');
+            } catch (\Exception $e) {
+                return redirect('/login')->with('error', 'Google 로그인 중 오류가 발생했습니다.');
+            }
+        }
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+        // ----------------------
+        // Kakao 로그인
+        // ----------------------
+        protected function getTokenUrl()
+        {
+            return 'https://kauth.kakao.com/oauth/token';
+        }
+        
+        public function redirectToKakao()
+        {
+            return Socialite::driver('kakao')->redirect();
+        }
 
-### Premium Partners
+        public function handleKakaoCallback()
+        {
+            try {
+                $socialUser = Socialite::driver('kakao')->stateless()->user();
+                return $this->handleSocialLogin($socialUser, 'kakao');
+            } catch (\Exception $e) {
+                return redirect('/login')->with('error', 'Kakao 로그인 중 오류가 발생했습니다.');
+            }
+        }
+    ```
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+### 3. 유저 정보 리스트/ 등록/ 수정 /삭제 기능 비밀번호 변경 기능 (메일로 인증번호 송신하여 인증하기)(2025.02.28 ~ 2025.03.13)
 
-## Contributing
+1. 유저정보 crud 블레이드 템플릿 작성
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. 비밀번호 갱신 토큰 테이블(password_reset_tokens)에 token칼럼을 verification_code 칼럼으로 변경  expired_at(인증코드 만료 시간) 칼럼 추가
 
-## Code of Conduct
+3. 비밀번호 찾기 페이지 (이메일 입력)
+   인증번호 입력 페이지 (인증번호 입력)
+   비밀번호 재설정 페이지 (새 비밀번호 / 새 비밀번호 확인 입력)
+   blade 템플릿 작성 (views/auth/passwords/**.blade.php)
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. .env 파일 업데이트 (gmail을 사용하여 메일 송신)
 
-## Security Vulnerabilities
+    ```
+        MAIL_MAILER=smtp
+        MAIL_HOST=smtp.gmail.com 
+        MAIL_PORT=587
+        MAIL_USERNAME= 본인 이메일
+        MAIL_PASSWORD="비밀번호"
+        MAIL_ENCRYPTION=tls
+        MAIL_FROM_ADDRESS= 본인 이메일
+    ```
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+5. Http/Controllers/Auth/PasswordController.php에서 비밀번호 관련 로직 작성
 
-## License
+6. 송신 메일에 관한 blade 템플릿 작성 (views/emails/verification_code.blade.php)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+7. Mail/VerificationCodeMail.php로 mail 보낼 blade 템플릿 지정
+
+
+### 4. 좋아요/찜하기 기능 (2025.03.14 ~ 2025.03.28)
+
+1. 상품 테이블 작성 (products)
+
+2. 유저와 상점 유저와 상품을 연관짓는 데이터베이스 작성 (user_likes_products) (user_saved_products)
+
+3. 유저가 상품 좋아요, 찜하기 로직을 수행하는 controller 작성
+
+4. 상품관련 blade 작성 (views/products/)
+
+5. 유저 blade 수정 
+
+
+## 로컬 환경 실행
+
+1. ``` cd src ```
+2. ``` cp .env .env.example ```
+3. ``` cd ../ ```
+4. ``` . ./init.sh ```
