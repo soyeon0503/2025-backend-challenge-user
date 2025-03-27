@@ -20,7 +20,7 @@ class ProductFactory extends Factory
         return [
             'name' => fake()->text(50),
             'price' => fake()->numberBetween(100, 1000000),
-            'description' => fake()->paragraph(),
+            'description' => fake()->text(),
             'status' => fake()->randomElement([0, 1]),
             'company_id' => Company::pluck('id')->random(),
             'manager_id' => Manager::pluck('id')->random(),

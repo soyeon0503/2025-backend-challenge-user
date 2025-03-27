@@ -27,6 +27,7 @@ class ManagerFactory extends Factory
             'department' => fake()->text(25),
              // 실제 존재하는 회사 중 랜덤 선택
             'company_id' => Company::pluck('id')->random(),
+            'role' => fake()->randomElement([0, 1]),
         ];
     }
     

@@ -23,7 +23,7 @@ class PostFactory extends Factory
     {
         return [
             'title' => fake()->text(50),
-            'content' => fake()->paragraph(3),
+            'content' => fake()->text(),
             'status' => fake()->randomElement([0, 1]),
             'company_id' => Company::pluck('id')->random(),
             'manager_id' => Manager::pluck('id')->random(),
