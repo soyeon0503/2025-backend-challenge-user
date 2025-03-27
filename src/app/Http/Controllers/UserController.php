@@ -10,19 +10,23 @@ use Illuminate\Validation\ValidationException;
 
 class UserController extends Controller
 {
-    // 1. 게시물 목록 조회
     public function index()
     {
         $users = User::all(); // 모든 게시물 가져오기
         return view('users.index', compact('users'));
     }
 
-    // 4. 특정 게시물 조회
     public function show(string $id)
     {
-        $user = User::find($id);
-        return view('users.show', compact('user'));
+        $user = User::findOrFail($id);
+        
+        // 유저가 좋아요한 & 저장한 상품 가져오기
+        $likedProducts = $user->likedProducts()->with(['company', 'post'])->get();
+        $savedProducts = $user->savedProducts()->with(['company', 'post'])->get();
+
+        return view('users.show', compact('user', 'likedProducts', 'savedProducts'));
     }
+
 
     // 5. 게시물 수정 페이지(일반유저만 가능)
     public function edit(string $id){
@@ -60,7 +64,6 @@ class UserController extends Controller
     }
     
 
-    // 7. 게시물 삭제
     public function destroy(User $user)
     {
         $user->delete();
