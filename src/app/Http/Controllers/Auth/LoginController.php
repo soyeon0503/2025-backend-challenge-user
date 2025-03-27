@@ -3,38 +3,44 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Foundation\Auth\AuthenticatesUsers;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
-    /*
-    |--------------------------------------------------------------------------
-    | Login Controller
-    |--------------------------------------------------------------------------
-    |
-    | This controller handles authenticating users for the application and
-    | redirecting them to your home screen. The controller uses a trait
-    | to conveniently provide its functionality to your applications.
-    |
-    */
-
-    use AuthenticatesUsers;
-
     /**
-     * Where to redirect users after login.
-     *
-     * @var string
+     * 로그인 폼 표시
      */
-    protected $redirectTo = '/users';
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function showLoginForm()
     {
-        $this->middleware('guest')->except('logout');
-        $this->middleware('auth')->only('logout');
+        return view('auth.login');
+    }
+
+    /**
+     * 유저 로그인 처리
+     */
+    public function login(Request $request)
+    {
+        // 입력값 유효성 검사
+        $credentials = $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        // 유저 로그인 시도
+        if (Auth::guard('web')->attempt($credentials)) {
+            return redirect()->route('posts.index')->with('success', '로그인 성공');
+        }
+
+        return back()->withErrors(['email' => '이메일 또는 비밀번호가 올바르지 않습니다.']);
+    }
+
+    /**
+     * 유저 로그아웃 처리
+     */
+    public function logout()
+    {
+        Auth::guard('web')->logout();
+        return redirect()->route('login')->with('success', '로그아웃 완료');
     }
 }
