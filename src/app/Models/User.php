@@ -35,11 +35,14 @@ class User extends Authenticatable
         ];
     }
 
-    public function userLikeProduct(){
-        return $this->belongsToMany(UserLikeProduct::class);
+    public function likedProducts()
+    {
+        return $this->belongsToMany(Product::class, 'user_like_products', 'user_id', 'product_id')->withTimestamps();
     }
-
-    public function userSavedProduct(){
-        return $this->belongsTo(UserSavedProduct::class);
+    
+    public function savedProducts()
+    {
+        return $this->belongsToMany(Product::class, 'user_saved_products', 'user_id', 'product_id')->withTimestamps();
     }
+    
 }
