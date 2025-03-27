@@ -19,6 +19,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('department');
             $table->foreignId('company_id')->constrained()->onDelete('cascade');
+            $table->integer('role');
             $table->timestamps();
         });
     }

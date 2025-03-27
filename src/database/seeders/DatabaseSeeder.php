@@ -26,12 +26,11 @@ class DatabaseSeeder extends Seeder
         ]);
         
         User::factory()->count(10)->create();
-        Company::factory()->count(10)->create();
-        Manager::factory()->count(10)->create();
-        Product::factory()->count(10)->create();
-        Post::factory()->count(20)->create();
+        Company::factory()->count(5)->create();
+        Manager::factory()->count(30)->create();
+        Product::factory()->count(200)->create();
+        Post::factory()->count(200)->create();
         UserSavedProduct::factory()->count(50)->create();
         UserLikeProduct::factory()->count(50)->create();
-
     }
 }
